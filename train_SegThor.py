@@ -170,7 +170,7 @@ def train_model(parameters, dir='model', describe=''):
             total_prob = torch.clamp(total_prob, 1e-3, 1-1e-3)
 
             with torch.no_grad():
-                proto_ids = Prototype.distribute(features1, class_features, masks, p_num=parameters["p_num"])
+                proto_ids = Prototype.distribute(features1, class_features, masks, parameters=parameters)
             loss = Loss.all_loss(small_logits,logits,large_logits, masks, prob, small_prob, large_prob, total_prob, features1, class_features, proto_ids, parameters)
 
             optimizer.zero_grad()
@@ -179,7 +179,7 @@ def train_model(parameters, dir='model', describe=''):
 
             
             with torch.no_grad():
-                class_features = Prototype.update(features1, class_features, masks, proto_ids, p_num=parameters["p_num"])
+                class_features = Prototype.update(features1, class_features, masks, proto_ids, parameters=parameters)
                 merge_pred = torch.argmax(total_prob, dim=1)
                 correct_hist = caculate_IoU(masks.to(torch.int), clean_masks.to(torch.int), correct_hist, parameters["class_num"])
                 train_hist = caculate_IoU(merge_pred.to(torch.int), masks.to(torch.int), train_hist, parameters["class_num"])
@@ -224,13 +224,13 @@ def train_model(parameters, dir='model', describe=''):
             valid_record.append([miou]+ all_iou.tolist())
             print('Valid  : ', all_iou, ', miou: ', miou)
             if (now_epoch==parameters["epochs"]):
-                torch.save(model.state_dict(), dir+os.sep+"model_"+str(now_epoch)+".pth")
-                torch.save(class_features, dir+os.sep+"prototype_"+str(now_epoch)+".pth")
+                torch.save(model.state_dict(), parameters["save_dir"]+os.sep+"model_"+str(now_epoch)+".pth")
+                torch.save(class_features, parameters["save_dir"]+os.sep+"prototype_"+str(now_epoch)+".pth")
             if miou>best_miou:
                 best_miou=miou
                 best_epoch=now_epoch
-                torch.save(model.state_dict(), dir+os.sep+'best'+os.sep+model_path)
-                torch.save(class_features, dir+os.sep+'best'+os.sep+"prototype.pth")
+                torch.save(model.state_dict(), parameters["save_dir"]+os.sep+'best'+os.sep+model_path)
+                torch.save(class_features, parameters["save_dir"]+os.sep+'best'+os.sep+"prototype.pth")
             print('best_epoch: ', best_epoch, ", best_miou = ", best_miou)
 
         if any(need_label_correction_dict[key] for key in need_label_correction_dict if key != 0) and now_epoch!=parameters["epochs"]:
@@ -259,7 +259,7 @@ def train_model(parameters, dir='model', describe=''):
                 total_prob = torch.clamp(total_prob, 1e-3, 1-1e-3)
 
                 with torch.no_grad():
-                    proto_ids = Prototype.distribute(features1, past_class_features, masks, p_num=parameters["p_num"])
+                    proto_ids = Prototype.distribute(features1, past_class_features, masks, parameters=parameters)
                 loss = Loss.all_loss(small_logits,logits,large_logits, masks, prob, small_prob, large_prob, total_prob, features1, past_class_features, proto_ids, parameters)
 
                 past_optimizer.zero_grad()
@@ -293,7 +293,7 @@ def train_model(parameters, dir='model', describe=''):
                         image.save(img_path[i])
 
                 with torch.no_grad():
-                    past_class_features = Prototype.update(features1, past_class_features, masks, proto_ids, p_num=parameters["p_num"])
+                    past_class_features = Prototype.update(features1, past_class_features, masks, proto_ids, parameters=parameters)
 
         for c in range(1,parameters["class_num"]):
             if need_label_correction_dict[c]==True:
@@ -309,9 +309,9 @@ def train_model(parameters, dir='model', describe=''):
     print(first_correct_dict)
     valid_history = np.array(valid_record)
     correct_history = np.array(correct_record)
-    csv_name = dir+os.sep+'valid_IoU.csv'
+    csv_name = parameters["save_dir"]+os.sep+'valid_IoU.csv'
     np.savetxt(csv_name, valid_history, delimiter=",", fmt="%.6f")
-    csv_name = dir+os.sep+'Correct_IoU.csv'
+    csv_name = parameters["save_dir"]+os.sep+'Correct_IoU.csv'
     np.savetxt(csv_name, correct_history, delimiter=",", fmt="%.6f")
 
 if __name__ == "__main__":
@@ -319,7 +319,6 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", type=str, default="SegThor/train")
     parser.add_argument("--correct_dir", type=str, default="correct")
     parser.add_argument("--save_dir", type=str, default="PGADELE")
-    parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--batch_size", type=int, default=5)
@@ -330,7 +329,7 @@ if __name__ == "__main__":
     parser.add_argument("--class_num", type=int, default=5)
     parser.add_argument("--channel", type=int, default=1)
 
-    # label correction 
+    # ADELE + label correction 
     parser.add_argument("--beta_fg", type=float, default=0.8, help="confidence threshold for the foreground")
     parser.add_argument("--beta_bg", type=float, default=0.95, help="confidence threshold for the background")
     parser.add_argument("--delta", type=float, default=0, help="similarity threshold(-1~1)")
@@ -354,7 +353,6 @@ if __name__ == "__main__":
     parameters["data_dir"] = args.data_dir
     parameters["correct_dir"] = args.correct_dir
     parameters["save_dir"] = args.save_dir
-    parameters["model_name"] = args.model_name
     parameters["seed"] = args.seed
     parameters['device'] = args.device
     parameters["batch_size"] = args.batch_size

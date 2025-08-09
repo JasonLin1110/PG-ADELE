@@ -1,0 +1,7 @@
+python>=3.8.19
+numpy>=1.24.3
+pillow>=10.2.0
+torch>=2.4.1
+torchvision>=0.19.1
+tqdm
+scipy

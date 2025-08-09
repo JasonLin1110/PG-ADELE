@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import warnings
-import Prototype as P
+from . import Prototype as P
 warnings.simplefilter("ignore", UserWarning)
 
 def prototype_loss(features, prototypes, labels, proto_ids, parameters):
