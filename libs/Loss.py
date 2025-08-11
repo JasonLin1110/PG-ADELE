@@ -64,8 +64,6 @@ def all_loss(s_logits,logits,l_logits, masks, prob, s_prob, l_prob, total_prob, 
             + torch.sum(F.kl_div(total_prob.log(), torch.clamp(l_prob, 1e-3, 1-1e-3), reduction='none') * total_mask, dim=1))/3.0
     
     # HAPMC+PPA
-    with torch.no_grad():
-        proto_ids = P.feature_belong_prototype(features, class_features, masks, p_num=parameters["p_num"])
     PC_loss = prototype_loss(features, class_features, masks, proto_ids, parameters)
 
     return 0.5*(CE_loss+Dice_loss)+kl_loss+PC_loss
