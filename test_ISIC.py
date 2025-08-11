@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 import unet_model
 
 def standarize(img):
-    return (img - img.mean()) / img.std()
+    return (img - img.mean(dim=(1,2), keepdim=True)) / img.std(dim=(1,2), keepdim=True)
 
 class ImageDataset(Dataset):
     def __init__(self, parameters, image_dir, image_paths, data_type='test', device="cpu"):

@@ -22,9 +22,6 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 def standarize(img):
-    return (img - img.mean()) / img.std()
-
-def standarize(img):
     return (img - img.mean(dim=(1,2), keepdim=True)) / img.std(dim=(1,2), keepdim=True)
 
 class ImageDataset(Dataset):
