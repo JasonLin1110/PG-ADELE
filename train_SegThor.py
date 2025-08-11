@@ -199,7 +199,7 @@ def train_model(parameters, dir='model', describe=''):
             if (now_epoch)%parameters["correct_freq"]==0:
                 already_label_correction_dict={0:True, 1:False, 2:False, 3:False, 4:False}
             for c in range(1,parameters["class_num"]):
-                class_correct = ADELE.if_update(iou_history[:,c], now_epoch-1, n_epoch=parameters["epochs"], threshold=parameters["r"])
+                class_correct = ADELE.if_update(parameters, iou_history[:,c], now_epoch-1, n_epoch=parameters["epochs"], threshold=parameters["r"])
                 need_label_correction_dict[c]=class_correct
                 if already_label_correction_dict[c]:
                     need_label_correction_dict[c]=False
