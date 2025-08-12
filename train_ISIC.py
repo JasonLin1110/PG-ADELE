@@ -344,7 +344,7 @@ if __name__ == "__main__":
     parser.add_argument("--alpha", type=float, default=0.01, help='loss weight for prototype learning (HAPMC+PPA)')
     parser.add_argument("--m", type=float, default=20, help='HAPMC positive margin (degree)')
     parser.add_argument("--n_m", type=float, default=0.5, help='HAPMC negative margin (0~1)')
-    parser.add_argument("--tau", type=float, default=0.01, help='HAPMC sharp')
+    parser.add_argument("--tau", type=float, default=0.1, help='HAPMC sharp')
     parser.add_argument("--eps", type=float, default=0.0, help='hard prototype selection threshold')
 
     args = parser.parse_args()
