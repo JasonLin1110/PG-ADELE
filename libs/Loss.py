@@ -66,4 +66,4 @@ def all_loss(s_logits,logits,l_logits, masks, prob, s_prob, l_prob, total_prob, 
     # HAPMC+PPA
     PC_loss = prototype_loss(features, class_features, masks, proto_ids, parameters)
 
-    return 0.5*(CE_loss+Dice_loss)+kl_loss+PC_loss
+    return 0.5*(CE_loss+Dice_loss)+kl_loss+parameters["alpha"]*PC_loss
