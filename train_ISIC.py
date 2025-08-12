@@ -373,7 +373,7 @@ if __name__ == "__main__":
     parameters["p_num"] = args.p_num
 
     parameters["rho"] = args.rho
-    parameters["aplha"] = args.alpha
+    parameters["alpha"] = args.alpha
     parameters["m"] = args.m
     parameters["n_m"] = args.n_m
     parameters["tau"] = args.tau
